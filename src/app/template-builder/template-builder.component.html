@@ -7,7 +7,7 @@
 
     <form [formGroup]="form" class="flex flex-grow flex-col" nz-form nzLayout="vertical">
      
-        <formly-form id="formly" class="flex flex-grow flex-col" cdkDropList [cdkDropListData]="fields()" [form]="form"
+        <formly-form id="formly" class="flex flex-grow flex-col border border-primary border-dashed " cdkDropList [cdkDropListData]="fields()" [form]="form"
           [cdkDropListConnectedTo]="conectedList()" [fields]="fields()" [model]="model"
           (cdkDropListDropped)="drop($event)" />
 
