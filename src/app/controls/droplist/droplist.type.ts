@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  OnDestroy,
   Type,
   ViewChild,
   inject,
@@ -19,10 +20,11 @@ import {
   CdkDragDrop,
   CdkDropList,
   DropListOrientation,
+  moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { NgFor, NgForOf, NgIf } from '@angular/common';
 import { TypeOption } from '@ngx-formly/core/lib/models';
-import { DragDropService } from '@app/shared/drag-drop.service';
+import { TemplateBuilderService } from '@app/shared/template-builder.service';
 
 
 
@@ -47,7 +49,7 @@ export interface FormlyDroplistFieldConfig
       cdkDropList
       [cdkDropListOrientation]="props.orientation"
       [cdkDropListData]="field.fieldGroup!"
-      [cdkDropListConnectedTo]="conectedList"
+      [cdkDropListConnectedTo]="conectedList()"
       (cdkDropListDropped)="drop($event)"
       class="grid grid-cols-3 gap-4 w-full"
     >
@@ -71,9 +73,9 @@ export interface FormlyDroplistFieldConfig
 })
 export class FormlyFieldDroplist
   extends FieldType<FieldTypeConfig<FormlyDroplistProps>>
-  implements AfterViewInit
+  implements AfterViewInit,OnDestroy
 {
-  readonly #dragDropService = inject(DragDropService);
+  readonly #templateBuilderService = inject(TemplateBuilderService);
 
   @ViewChild(CdkDropList) dropList?: CdkDropList;
 
@@ -103,20 +105,32 @@ export class FormlyFieldDroplist
     };
   };
 
-  // readonly conectedList = this.#dragDropService.dropListSignal;
-  public get conectedList() {
-    return this.#dragDropService.dropLists;
-  }
+   readonly conectedList = this.#templateBuilderService.dropList;
+
 
   ngAfterViewInit(): void {
-    console.log('droplist ngAfterViewIni---------------t');
+  
     if (this.dropList) {
-      console.log('droplist ');
-      this.#dragDropService.register(this.dropList);
+      console.log("dropList",this.dropList)
+      this.#templateBuilderService.registerCdkDropList(this.dropList);
     }
   }
 
+  ngOnDestroy(): void {
+    console.log("ngOnDestroy")
+   // this.#templateBuilderService.removeCdkDropList(this.id); 
+  }
+
   drop(event: CdkDragDrop<FormlyFieldConfig[]>) {
-    if (this.props.dropped) this.props.dropped(event, this.field);
+    if (event.container === event.previousContainer) {
+      moveItemInArray(
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+    } else {
+      const field = event.item.data as FormlyFieldConfig;
+      this.#templateBuilderService.addFieldConfigToDropList(this.id, event.currentIndex, field);
+    }
   }
 }
