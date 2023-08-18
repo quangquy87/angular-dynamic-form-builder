@@ -1,0 +1,19 @@
+<div class="flex flex-grow" >
+  <div class="flex flex-none w-64 bg-white border-r border-slate-200 dark:bg-[#2B2D31] dark:border-r-0">
+    <all-controls />
+  </div>
+
+  <div class="flex flex-grow py-4 px-7 scrollable bg-gray-100 dark:bg-[#313338]">
+
+    <form [formGroup]="form" class="flex flex-grow flex-col" nz-form nzLayout="vertical">
+     
+        <formly-form id="formly" class="flex flex-grow flex-col" cdkDropList [cdkDropListData]="fields" [form]="form"
+          [cdkDropListConnectedTo]="conectedList" [fields]="fields" [model]="model"
+          (cdkDropListDropped)="drop($event)" />
+
+     
+    </form>
+  </div>
+
+
+</div>
